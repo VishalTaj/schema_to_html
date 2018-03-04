@@ -1,0 +1,37 @@
+
+<div class="header">
+  <strong>Schema2HTML</strong>
+  <input type="search" value="" id="search_model" onkeyup="searchModel(this)" onsearch="searchModel(this)"placeholder="Search by table name" />
+</div>
+<div class="container">
+  <% @tables.each do |model| %>
+      <div class="tableSection" id="<%= model.name.downcase %>">
+        <% references = model.reflections.keys rescue [] %>
+        <p>Model Name: <strong><%= model.name %></strong></p>
+        <div class="divTable">
+          <div class="divTableHeading">
+            <div class="divTableRow">
+              <div class="divTableHead">Name</div>
+              <div class="divTableHead">Type</div>
+              <div class="divTableHead">Default</div>
+              <div class="divTableHead">Reference</div>
+            </div>
+          </div>
+          <div class="divTableBody">
+            <% model.attribute_names.each do |attribute| %>
+              <% unless attribute.include? "password" %>
+                <div class="divTableRow">
+                  <div class="divTableCell"><%= attribute %></div>
+                  <div class="divTableCell"><%= model.columns_hash[attribute].type %></div>
+                  <div class="divTableCell"><%= model.columns_hash[attribute].default %></div>
+                  <div class="divTableCell">
+                    <%= references.find {|r| r if r == attribute.gsub('_id', '')} %>
+                  </div>
+                </div>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+  <% end %>
+</div>
