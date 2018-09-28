@@ -6,7 +6,10 @@
 <div class="container">
   <% @tables.each do |model| %>
       <div class="tableSection" id="<%= model.name.downcase %>">
-        <% references = model.reflections.keys rescue [] %>
+        <% references = model.reflect_on_all_associations
+                       .select(&:belongs_to?)
+                       .inject({}) {|hash, elem| hash[elem.foreign_key] = elem.class_name.downcase.pluralize rescue nil; hash }
+         %>
         <p>Model Name: <strong><%= model.name %></strong></p>
         <div class="divTable">
           <div class="divTableHeading">
@@ -25,7 +28,7 @@
                   <div class="divTableCell"><%= model.columns_hash[attribute].type %></div>
                   <div class="divTableCell"><%= model.columns_hash[attribute].default %></div>
                   <div class="divTableCell">
-                    <%= references.find {|r| r if r == attribute.gsub('_id', '')} %>
+                    <%= "#{attribute} -> #{references[attribute]}" if references.keys.include? attribute %>
                   </div>
                 </div>
               <% end %>
